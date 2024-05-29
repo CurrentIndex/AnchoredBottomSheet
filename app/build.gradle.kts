@@ -1,11 +1,15 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("maven-publish")
 }
 
 android {
     namespace = "com.simkz.sheet"
     compileSdk = 34
+
+    group = "com.simkz"
+    version = "1.0"
 
     defaultConfig {
         applicationId = "com.simkz.sheet"
@@ -44,6 +48,27 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                register<MavenPublication>("release") {
+                    groupId = "com.my-company"
+                    artifactId = "my-library"
+                    version = "1.0"
+
+                    afterEvaluate {
+                        from(components["release"])
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -65,3 +90,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+

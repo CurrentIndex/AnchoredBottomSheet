@@ -1,4 +1,3 @@
-import java.net.URI
 
 pluginManagement {
     repositories {
@@ -27,15 +26,3 @@ dependencyResolutionManagement {
 rootProject.name = "AnchoredBottomSheet"
 include(":app")
 include(":bottomsheet")
-
-
-//dependencyResolutionManagement {
-//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-//    repositories {
-//        mavenCentral()
-//        maven { url 'https://jitpack.io' }
-//    }
-//}
-//dependencies {
-//    implementation 'com.github.User:Repo:Version'
-//}
