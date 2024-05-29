@@ -58,8 +58,8 @@ android {
         publishing {
             publications {
                 register<MavenPublication>("release") {
-                    groupId = "com.my-company"
-                    artifactId = "my-library"
+                    groupId = "com.simkz"
+                    artifactId = "bottomsheet"
                     version = "1.0"
 
                     afterEvaluate {
