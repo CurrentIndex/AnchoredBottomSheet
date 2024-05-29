@@ -34,6 +34,23 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                register<MavenPublication>("release") {
+                    groupId = "com.simkz.sheet"
+                    artifactId = "sheet"
+                    version = "1.0"
+
+                    afterEvaluate {
+                        from(components["release"])
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 dependencies {
