@@ -15,4 +15,7 @@ dependencies {
     implementation 'com.github.CurrentIndex:AnchoredBottomSheet:0.0.2'
 }
 ```
-![]("./assets/screen.mp4")
+
+
+https://github.com/CurrentIndex/AnchoredBottomSheet/assets/59065234/d6c8630b-4e1f-4cbc-9528-aa44b59aa58a
+
