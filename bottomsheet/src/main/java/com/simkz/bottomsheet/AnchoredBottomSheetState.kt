@@ -48,7 +48,7 @@ class AnchoredSheetState @Deprecated(
     val currentValue: AnchoredBottomSheetStateValue get() = anchoredDraggableState.currentValue
 
     val targetValue: AnchoredBottomSheetStateValue get() = anchoredDraggableState.targetValue
-
+    fun positionOf(value: AnchoredBottomSheetStateValue) = anchoredDraggableState.anchors.positionOf(value)
     fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     suspend fun animateTo(

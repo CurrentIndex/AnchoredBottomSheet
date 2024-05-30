@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
 object SheetValues {
     data object Maximum : AnchoredBottomSheetStateValue(1f)
     data object Medium : AnchoredBottomSheetStateValue(.5f)
@@ -54,7 +53,7 @@ object SheetValues {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetScaffoldExample(){
+fun BottomSheetScaffoldExample() {
     val scope = rememberCoroutineScope()
     val anchors = listOf(SheetValues.Maximum, SheetValues.Medium, SheetValues.Minimum, SheetValues.Hide)
     val scaffoldState = rememberAnchoredBottomSheetScaffoldState(
@@ -114,27 +113,20 @@ fun BottomSheetScaffoldExample(){
 //            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(
-                onClick = {
-                    scope.launch {
-                        previousAnchor = scaffoldState.anchoredSheetState.currentValue.value
-                        scaffoldState.anchoredSheetState.animateTo(SheetValues.Hide)
-                    }
+            Button(onClick = {
+                scope.launch {
+                    previousAnchor = scaffoldState.anchoredSheetState.currentValue.value
+                    scaffoldState.anchoredSheetState.animateTo(SheetValues.Hide)
                 }
-            ) {
+            }) {
                 Text(text = "Hide")
             }
 
-            Button(
-                onClick = {
-                    scope.launch {
-                        scaffoldState.anchoredSheetState.animateTo(anchors.first { anchor -> previousAnchor == anchor.value })
-                    }
-                }
-            ) {
+            Button(onClick = {
+                scope.launch { scaffoldState.anchoredSheetState.animateTo(anchors.first { anchor -> previousAnchor == anchor.value }) }
+            }) {
                 Text(text = "Show")
             }
-
         }
     }
 }
