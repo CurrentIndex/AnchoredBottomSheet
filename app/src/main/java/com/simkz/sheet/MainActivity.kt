@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.simkz.bottomsheet.AnchoredBottomSheetScaffold
 import com.simkz.bottomsheet.AnchoredBottomSheetStateValue
 import com.simkz.bottomsheet.rememberAnchoredBottomSheetScaffoldState
@@ -46,8 +48,8 @@ class MainActivity : ComponentActivity() {
 object SheetValues {
     data object Maximum : AnchoredBottomSheetStateValue(1f)
     data object Medium : AnchoredBottomSheetStateValue(.5f)
-    data object Minimum : AnchoredBottomSheetStateValue(.1f)
-    data object Hide : AnchoredBottomSheetStateValue(.0f)
+    data object Minimum : AnchoredBottomSheetStateValue(0f)
+//    data object Hide : AnchoredBottomSheetStateValue(.0f)
 }
 
 
@@ -55,7 +57,7 @@ object SheetValues {
 @Composable
 fun BottomSheetScaffoldExample() {
     val scope = rememberCoroutineScope()
-    val anchors = listOf(SheetValues.Maximum, SheetValues.Medium, SheetValues.Minimum, SheetValues.Hide)
+    val anchors = listOf(SheetValues.Maximum, SheetValues.Medium, SheetValues.Minimum)
     val scaffoldState = rememberAnchoredBottomSheetScaffoldState(
         anchors = anchors,
         initialValue = anchors.first(),
@@ -65,6 +67,7 @@ fun BottomSheetScaffoldExample() {
         topBar = {
             TopAppBar(title = { Text(text = "TITLE") })
         },
+        sheetPeekHeight = 56.dp,
         scaffoldState = scaffoldState,
         sheetContent = {
             Column(
@@ -104,29 +107,6 @@ fun BottomSheetScaffoldExample() {
         },
         sheetDragHandle = null
     ) {
-        var previousAnchor by rememberSaveable { mutableStateOf<Float?>(null) }
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
-                .background(color = Color.DarkGray),
-//            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = {
-                scope.launch {
-                    previousAnchor = scaffoldState.anchoredSheetState.currentValue.value
-                    scaffoldState.anchoredSheetState.animateTo(SheetValues.Hide)
-                }
-            }) {
-                Text(text = "Hide")
-            }
 
-            Button(onClick = {
-                scope.launch { scaffoldState.anchoredSheetState.animateTo(anchors.first { anchor -> previousAnchor == anchor.value }) }
-            }) {
-                Text(text = "Show")
-            }
-        }
     }
 }

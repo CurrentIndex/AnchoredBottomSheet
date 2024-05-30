@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -49,6 +50,7 @@ import kotlin.math.roundToInt
 fun AnchoredBottomSheetScaffold(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
+    sheetPeekHeight: Dp = 0.dp,
     scaffoldState: AnchoredBottomSheetScaffoldState,
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     sheetShape: Shape = BottomSheetDefaults.ExpandedShape,
@@ -64,6 +66,7 @@ fun AnchoredBottomSheetScaffold(
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val density = LocalDensity.current
     BottomSheetScaffoldLayout(
         modifier = modifier,
         topBar = topBar,
@@ -81,8 +84,9 @@ fun AnchoredBottomSheetScaffold(
                 calculateAnchors = { _ ->
                     // val sheetHeight = sheetSize.height
                     DraggableAnchors {
+                        val sheetPeekHeightPx = with(density) { sheetPeekHeight.roundToPx() }
                         for (anchor in scaffoldState.anchoredSheetState.anchors) {
-                            anchor at layoutHeight * (1 - anchor.value)
+                            anchor at (layoutHeight - sheetPeekHeightPx) * (1 - anchor.value)
                         }
                     }
                 },
