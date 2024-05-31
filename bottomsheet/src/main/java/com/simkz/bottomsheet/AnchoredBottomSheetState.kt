@@ -10,10 +10,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-abstract class AnchoredBottomSheetStateValue(val value: Float)
-
+//internal abstract class AnchoredBottomSheetStateSize(val value: Float)
+sealed class AnchoredBottomSheetStateSize {
+    data class Fixed(val size: Dp) : AnchoredBottomSheetStateSize()
+    data class Weight(val size: Float) : AnchoredBottomSheetStateSize()
+}
 
 @Stable
 @ExperimentalMaterial3Api
@@ -27,38 +31,38 @@ class AnchoredSheetState @Deprecated(
                 "confirmValueChange, skipHiddenState)"
     )
 ) constructor(
-    initialValue: AnchoredBottomSheetStateValue,
-    confirmValueChange: (AnchoredBottomSheetStateValue) -> Boolean = { true },
+    initialValue: AnchoredBottomSheetStateSize,
+    confirmValueChange: (AnchoredBottomSheetStateSize) -> Boolean = { true },
     animationSpec: AnimationSpec<Float>,
-    internal val anchors: List<AnchoredBottomSheetStateValue>,
+    internal val anchors: List<AnchoredBottomSheetStateSize>,
 ) {
 
     @ExperimentalMaterial3Api
     @Suppress("Deprecation")
     constructor(
         density: Density,
-        initialValue: AnchoredBottomSheetStateValue,
-        confirmValueChange: (AnchoredBottomSheetStateValue) -> Boolean = { true },
+        initialValue: AnchoredBottomSheetStateSize,
+        confirmValueChange: (AnchoredBottomSheetStateSize) -> Boolean = { true },
         animationSpec: AnimationSpec<Float>,
-        anchors: List<AnchoredBottomSheetStateValue>,
+        anchors: List<AnchoredBottomSheetStateSize>,
     ) : this(initialValue, confirmValueChange, animationSpec, anchors) {
         this.density = density
     }
 
-    val currentValue: AnchoredBottomSheetStateValue get() = anchoredDraggableState.currentValue
+    val currentValue: AnchoredBottomSheetStateSize get() = anchoredDraggableState.currentValue
 
-    val targetValue: AnchoredBottomSheetStateValue get() = anchoredDraggableState.targetValue
-    fun positionOf(value: AnchoredBottomSheetStateValue) = anchoredDraggableState.anchors.positionOf(value)
+    val targetValue: AnchoredBottomSheetStateSize get() = anchoredDraggableState.targetValue
+    fun positionOf(value: AnchoredBottomSheetStateSize) = anchoredDraggableState.anchors.positionOf(value)
     fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     suspend fun animateTo(
-        targetValue: AnchoredBottomSheetStateValue,
+        targetValue: AnchoredBottomSheetStateSize,
         velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
         anchoredDraggableState.animateTo(targetValue, velocity)
     }
 
-    internal suspend fun snapTo(targetValue: AnchoredBottomSheetStateValue) {
+    internal suspend fun snapTo(targetValue: AnchoredBottomSheetStateSize) {
         anchoredDraggableState.snapTo(targetValue)
     }
 
@@ -81,26 +85,26 @@ class AnchoredSheetState @Deprecated(
                 "BottomSheetScaffold or ModalBottomSheet component?"
     }
 
-    suspend fun maximum() {
-        val anchor = anchors.reduce { acc, anchor -> if (acc.value > anchor.value) acc else anchor }
-        animateTo(anchor)
-    }
-
-    suspend fun minimum() {
-        val anchor = anchors.reduce { acc, anchor -> if (acc.value > anchor.value) anchor else acc }
-        animateTo(anchor)
-    }
-
     companion object {
         fun Saver(
-            confirmValueChange: (AnchoredBottomSheetStateValue) -> Boolean,
+            confirmValueChange: (AnchoredBottomSheetStateSize) -> Boolean,
             density: Density,
             animationSpec: AnimationSpec<Float>,
-            anchors: List<AnchoredBottomSheetStateValue>,
+            anchors: List<AnchoredBottomSheetStateSize>,
         ) = Saver<AnchoredSheetState, Float>(
-            save = { it.currentValue.value },
-            restore = { savedValue ->
-                val restoreAnchor = anchors.first { it.value == savedValue }
+            save = {
+                when (val currentValue = it.currentValue) {
+                    is AnchoredBottomSheetStateSize.Weight -> currentValue.size
+                    is AnchoredBottomSheetStateSize.Fixed -> with(density) { currentValue.size.toPx() }
+                }
+            },
+            restore = { value ->
+                val restoreAnchor = anchors.first {
+                    when (val currentValue = it) {
+                        is AnchoredBottomSheetStateSize.Weight -> currentValue.size == value
+                        is AnchoredBottomSheetStateSize.Fixed -> with(density) { currentValue.size.toPx() } == value
+                    }
+                }
                 AnchoredSheetState(density, restoreAnchor, confirmValueChange, animationSpec, anchors)
             }
         )

@@ -8,27 +8,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.simkz.bottomsheet.AnchoredBottomSheetScaffold
-import com.simkz.bottomsheet.AnchoredBottomSheetStateValue
+import com.simkz.bottomsheet.AnchoredBottomSheetStateSize
 import com.simkz.bottomsheet.rememberAnchoredBottomSheetScaffoldState
 import com.simkz.sheet.ui.theme.AnchoredBottomSheetTheme
 import kotlinx.coroutines.launch
@@ -45,29 +37,37 @@ class MainActivity : ComponentActivity() {
 }
 
 
-object SheetValues {
-    data object Maximum : AnchoredBottomSheetStateValue(1f)
-    data object Medium : AnchoredBottomSheetStateValue(.5f)
-    data object Minimum : AnchoredBottomSheetStateValue(0f)
-//    data object Hide : AnchoredBottomSheetStateValue(.0f)
-}
+//object SheetValues {
+//    data object Maximum : AnchoredBottomSheetStateValue(1f)
+//    data object Medium : AnchoredBottomSheetStateValue(.5f)
+//    data object Minimum : AnchoredBottomSheetStateValue(0f)
+////    data object Hide : AnchoredBottomSheetStateValue(.0f)
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetScaffoldExample() {
     val scope = rememberCoroutineScope()
-    val anchors = listOf(SheetValues.Maximum, SheetValues.Medium, SheetValues.Minimum)
+    val anchors = remember {
+        listOf(
+            AnchoredBottomSheetStateSize.Weight(1f),
+            AnchoredBottomSheetStateSize.Weight(0.5f),
+            AnchoredBottomSheetStateSize.Weight(0f),
+            AnchoredBottomSheetStateSize.Fixed(54.dp),
+        )
+    }
+    val (anchorMaximum, anchorMedium, anchorMinimum, anchor54dp) = anchors
     val scaffoldState = rememberAnchoredBottomSheetScaffoldState(
         anchors = anchors,
-        initialValue = anchors.first(),
+        initialValue = anchorMaximum,
         animationSpec = tween(easing = EaseOutBack)
     )
     AnchoredBottomSheetScaffold(
         topBar = {
             TopAppBar(title = { Text(text = "TITLE") })
         },
-        sheetPeekHeight = 56.dp,
+        sheetPeekHeight = 0.dp,
         scaffoldState = scaffoldState,
         sheetContent = {
             Column(
@@ -79,7 +79,7 @@ fun BottomSheetScaffoldExample() {
                 Button(
                     onClick = {
                         scope.launch {
-                            scaffoldState.anchoredSheetState.animateTo(SheetValues.Maximum)
+                            scaffoldState.anchoredSheetState.animateTo(anchorMaximum)
                         }
                     }
                 ) {
@@ -88,7 +88,7 @@ fun BottomSheetScaffoldExample() {
                 Button(
                     onClick = {
                         scope.launch {
-                            scaffoldState.anchoredSheetState.animateTo(SheetValues.Medium)
+                            scaffoldState.anchoredSheetState.animateTo(anchorMedium)
                         }
                     }
                 ) {
@@ -97,11 +97,20 @@ fun BottomSheetScaffoldExample() {
                 Button(
                     onClick = {
                         scope.launch {
-                            scaffoldState.anchoredSheetState.animateTo(SheetValues.Minimum)
+                            scaffoldState.anchoredSheetState.animateTo(anchorMinimum)
                         }
                     }
                 ) {
                     Text(text = "Minimum")
+                }
+                Button(
+                    onClick = {
+                        scope.launch {
+                            scaffoldState.anchoredSheetState.animateTo(anchor54dp)
+                        }
+                    }
+                ) {
+                    Text(text = "54dp")
                 }
             }
         },

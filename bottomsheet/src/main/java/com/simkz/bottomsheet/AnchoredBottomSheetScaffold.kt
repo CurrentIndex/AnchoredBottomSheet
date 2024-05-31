@@ -86,7 +86,10 @@ fun AnchoredBottomSheetScaffold(
                     DraggableAnchors {
                         val sheetPeekHeightPx = with(density) { sheetPeekHeight.roundToPx() }
                         for (anchor in scaffoldState.anchoredSheetState.anchors) {
-                            anchor at (layoutHeight - sheetPeekHeightPx) * (1 - anchor.value)
+                            when (anchor) {
+                                is AnchoredBottomSheetStateSize.Weight -> anchor at (layoutHeight - sheetPeekHeightPx) * (1 - anchor.size)
+                                is AnchoredBottomSheetStateSize.Fixed -> anchor at (layoutHeight - sheetPeekHeightPx - with(density) { anchor.size.toPx() })
+                            }
                         }
                     }
                 },
@@ -112,8 +115,8 @@ class AnchoredBottomSheetScaffoldState(
 @Composable
 @ExperimentalMaterial3Api
 fun rememberAnchoredBottomSheetScaffoldState(
-    anchors: List<AnchoredBottomSheetStateValue>,
-    initialValue: AnchoredBottomSheetStateValue,
+    anchors: List<AnchoredBottomSheetStateSize>,
+    initialValue: AnchoredBottomSheetStateSize,
     animationSpec: AnimationSpec<Float> = SpringSpec(),
     anchoredBottomSheetState: AnchoredSheetState = rememberAnchoredStandardBottomSheetState(
         initialValue = initialValue,
@@ -122,7 +125,7 @@ fun rememberAnchoredBottomSheetScaffoldState(
     ),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): AnchoredBottomSheetScaffoldState {
-    return remember(anchoredBottomSheetState, snackbarHostState) {
+    return remember(anchoredBottomSheetState, snackbarHostState, anchors, initialValue) {
         AnchoredBottomSheetScaffoldState(
             anchoredSheetState = anchoredBottomSheetState,
             snackbarHostState = snackbarHostState
@@ -133,17 +136,17 @@ fun rememberAnchoredBottomSheetScaffoldState(
 @Composable
 @ExperimentalMaterial3Api
 fun rememberAnchoredStandardBottomSheetState(
-    initialValue: AnchoredBottomSheetStateValue,
-    confirmValueChange: (AnchoredBottomSheetStateValue) -> Boolean = { true },
+    initialValue: AnchoredBottomSheetStateSize,
+    confirmValueChange: (AnchoredBottomSheetStateSize) -> Boolean = { true },
     animationSpec: AnimationSpec<Float> = SpringSpec(),
-    anchors: List<AnchoredBottomSheetStateValue>,
+    anchors: List<AnchoredBottomSheetStateSize>,
 ) = rememberAnchoredBottomSheetState(confirmValueChange, initialValue, animationSpec, anchors)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun StandardBottomSheet(
     state: AnchoredSheetState,
-    calculateAnchors: (sheetSize: IntSize) -> DraggableAnchors<AnchoredBottomSheetStateValue>,
+    calculateAnchors: (sheetSize: IntSize) -> DraggableAnchors<AnchoredBottomSheetStateSize>,
     sheetMaxWidth: Dp,
     sheetSwipeEnabled: Boolean,
     shape: Shape,
@@ -266,10 +269,10 @@ private enum class BottomSheetScaffoldLayoutSlot { TopBar, Body, Sheet, Snackbar
 @Composable
 @ExperimentalMaterial3Api
 internal fun rememberAnchoredBottomSheetState(
-    confirmValueChange: (AnchoredBottomSheetStateValue) -> Boolean = { true },
-    initialValue: AnchoredBottomSheetStateValue,
+    confirmValueChange: (AnchoredBottomSheetStateSize) -> Boolean = { true },
+    initialValue: AnchoredBottomSheetStateSize,
     animationSpec: AnimationSpec<Float>,
-    anchors: List<AnchoredBottomSheetStateValue>,
+    anchors: List<AnchoredBottomSheetStateSize>,
 ): AnchoredSheetState {
 
     val density = LocalDensity.current
